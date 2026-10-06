@@ -1,0 +1,5 @@
+import {cookies} from 'next/headers';
+import {SESSION_COOKIE,SESSION_SECONDS,createSession,safeEqual} from '@/lib/session';
+export async function POST(req:Request){const origin=req.headers.get('origin');if(origin&&origin!==new URL(req.url).origin)return Response.json({error:'Origem inválida'},{status:403});const expected=process.env.APP_PASSWORD;if(!expected||!process.env.SESSION_SECRET)return Response.json({error:'Acesso não configurado no servidor.'},{status:503});let password='';try{const b=await req.json() as {password?:unknown};password=typeof b.password==='string'?b.password:'';}catch{return Response.json({error:'Requisição inválida.'},{status:400});}
+if(!safeEqual(password,expected)){await new Promise(r=>setTimeout(r,600));return Response.json({error:'Senha incorreta.'},{status:401});}
+(await cookies()).set(SESSION_COOKIE,await createSession(),{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:'/',maxAge:SESSION_SECONDS});return Response.json({ok:true});}

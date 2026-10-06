@@ -1,0 +1,7 @@
+'use client';
+import {useState} from 'react';
+import {Loader2,LogIn} from 'lucide-react';
+export default function Login(){
+const [password,setPassword]=useState('');const [busy,setBusy]=useState(false);const [error,setError]=useState('');
+async function submit(e:React.FormEvent){e.preventDefault();setBusy(true);setError('');try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Não foi possível entrar.');window.location.href='/';}catch(err){setError((err as Error).message);setBusy(false);}}
+return <div className="app-shell"><main><div className="narrow"><div className="page-heading"><div><div className="eyebrow"><span/> ÁREA DO PERSONAL</div><h1>Entrar<span className="cyan">.</span></h1><p>GM • Studio de Treinos. Digite a senha para continuar.</p></div></div><form className="panel form-panel" onSubmit={submit}><label className="field"><span>Senha</span><input type="password" autoFocus required autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Sua senha de acesso"/>{error&&<small role="alert">{error}</small>}</label><button className="btn primary full" disabled={busy||!password}>{busy?<Loader2 className="spin" size={18}/>:<LogIn size={18}/>} Entrar</button></form></div></main></div>}
